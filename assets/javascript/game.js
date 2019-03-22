@@ -1,20 +1,17 @@
-var player2 = null;
+// OBJECTS FOR PLAYER DATA
 var player1 = null;
-var playerCount = null;
-
+var player2 = null;
 var player1Name = "";
 var player2Name = "";
-
 var userName = "";
-
 var player1Choice = "";
 var player2Choice = "";
 
-var turn = 0;
-
+// DYNAMICALLY SHOWING/HIDING CONTENT
 var p1Card = $("#player1-card");
 var p2Card = $("#player2-card");
 
+// FIREBASE CONFIG AND INITIALIZATION
 var config = {
     apiKey: "AIzaSyBr7hjW2ADXno4EpTNnyrMpAx-MkFClwEk",
     authDomain: "rps-multiplayer-3b622.firebaseapp.com",
@@ -25,15 +22,13 @@ var config = {
 };
 firebase.initializeApp(config);
 
+// DATABASE VARIABLES
 var database = firebase.database();
-
 var playerData = database.ref("/playerData")
-var playerCount = database.ref("playerCount");
-
 var connectionsRef = database.ref("/connections");
 var connectedRef = database.ref(".info/connected");
 
-// client connection state change
+// LISTENER FOR CLIENT CONNECTION CHANGES
 connectedRef.on("value", function (snap) {
     if (snap.val()) {
         var con = connectionsRef.push(true);
@@ -44,10 +39,13 @@ connectedRef.on("value", function (snap) {
 // LISTENER FOR DISCONNECTION EVENTS
 database.ref("/playerData/").on("child_removed", function (snapshot) {
     var notify = snapshot.val().name + " has disconnected.";
+    var msgNotify = $("<div>").text(notify);
+
     var chat = database.ref().child("/chat/").push().key;
     database.ref("/chat/" + chat).set(notify);
-})
+    $("#chat-box").append(msgNotify);
 
+})
 
 // SNAPSHOT OF THE LOCAL DATA AT PAGE LOAD AND OTHER VALUE CHANGES
 database.ref("/playerData/").on("value", function (snapshot) {
@@ -100,15 +98,15 @@ database.ref("/playerData/").on("value", function (snapshot) {
     if (!player1 && !player2) {
         console.log("a player disconnected");
     }
-
 }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
 });
 
-// LISTEN FOR NAME SUBMIT BUTTON
+// LISTENER FOR SUBMIT NEW PLAYER BUTTON
 $("#add-player").on("click", function (event) {
     event.preventDefault();
 
+    // If the input is empty and both players do not exist, intialize player 1
     if (($("#tag-input").val().trim() !== "") && !(player1 && player2)) {
         if (player1 === null) {
 
@@ -121,10 +119,10 @@ $("#add-player").on("click", function (event) {
                 wins: 0,
                 loss: 0,
                 tie: 0,
-                choice: "",
-                turn: 1
+                choice: ""
             };
 
+            // SAVES THE USERNAME TO THE LOCALSTORAGE IN ORDER TO COMPARE LATER
             localStorage.clear();
             localStorage.setItem("username", username)
             database.ref().child("/playerData/player1").set(player1);
@@ -141,8 +139,7 @@ $("#add-player").on("click", function (event) {
                 wins: 0,
                 loss: 0,
                 tie: 0,
-                choice: "",
-                turn: 2
+                choice: ""
             };
 
             localStorage.clear();
@@ -151,16 +148,21 @@ $("#add-player").on("click", function (event) {
             database.ref("/playerData/player2").onDisconnect().remove();
         }
 
+        // CLEARS THE INPUT FIELD
         $("#tag-input").val("");
-    }
-})
+    };
+});
 
 // ON CLICK EVENT LISTENER FOR PLAYER 1 CHOICE OF RPS
 $("#player1-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
+    // GRAB THE LOCALSTORAGE USERNAME
     var player1Check = localStorage.getItem("username");
 
+    // COMPARE IT TO PLAYER1.NAME
+    // ALLOWS ONLY PLAYER1 TO CLICK ON PLAYER1 BUTTONS! CONSOLE.LOG'S "Nice try cheater..." IF THEY TRY TO CLICK THEIR BUTTONS
+    // SEMI FLAWED IF THE USER HAS THE SAME USER NAME AS THE OTHER PLAYER
     if ((player1 && player2) && player1Check === player1.name) {
         player1Choice = $(this).val().trim();
 
@@ -170,14 +172,20 @@ $("#player1-card").on("click", ".choose", function (event) {
     } else {
         console.log("Nice try cheater...");
     }
+
+
 });
 
 // ON CLICK EVENT LISTENER FOR PLAYER 2 CHOICE OF RPS
 $("#player2-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
+    // GRAB THE LOCALSTORAGE USERNAME
     var player2Check = localStorage.getItem("usernamd");
 
+    // COMPARE IT TO PLAYER2.NAME
+    // ALLOWS ONLY PLAYER1 TO CLICK ON PLAYER2 BUTTONS! CONSOLE.LOG'S "Nice try cheater..." IF THEY TRY TO CLICK THEIR BUTTONS
+    // SEMI FLAWED IF THE USER HAS THE SAME USER NAME AS THE OTHER PLAYER
     if ((player1 && player2) && player2Check === player2.name) {
 
         player2Choice = $(this).val().trim();
@@ -190,6 +198,15 @@ $("#player2-card").on("click", ".choose", function (event) {
 
 });
 
+// LISTENER FOR CHAT SUBMIT BUTTON
+$("#send-msg").on("click", function () {
+    console.log("this is a test");
+    var message = $("#msg-input").val();
+    var msgDiv = $("<p>").text(message);
+
+    $("#chat-box").append(msgDiv);
+})
+
 // COMPARE FUNCTION
 function compare() {
 
@@ -199,6 +216,7 @@ function compare() {
             console.log("Tie Game!");
 
             $("#winner-announce").text("Tie Game: No Winner");
+            $("#gif-image").attr("src", "/assets/images/tiegame.gif");
 
             database.ref().child("/playerData/player1/tie").set(player1.tie + 1);
             database.ref().child("/playerData/player2/tie").set(player2.tie + 1);
@@ -209,6 +227,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
+            $("#gif-image").attr("src", "/assets/images/paper.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -219,6 +238,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
+            $("#gif-image").attr("src", "/assets/images/scissor.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -229,6 +249,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
+            $("#gif-image").attr("src", "/assets/images/rock.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -239,6 +260,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
+            $("#gif-image").attr("src", "/assets/images/rock.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
@@ -249,6 +271,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
+            $("#gif-image").attr("src", "/assets/images/paper.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
@@ -259,6 +282,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
+            $("#gif-image").attr("src", "/assets/images/scissor.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
