@@ -181,7 +181,7 @@ $("#player2-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
     // GRAB THE LOCALSTORAGE USERNAME
-    var player2Check = localStorage.getItem("usernamd");
+    var player2Check = localStorage.getItem("username");
 
     // COMPARE IT TO PLAYER2.NAME
     // ALLOWS ONLY PLAYER1 TO CLICK ON PLAYER2 BUTTONS! CONSOLE.LOG'S "Nice try cheater..." IF THEY TRY TO CLICK THEIR BUTTONS
