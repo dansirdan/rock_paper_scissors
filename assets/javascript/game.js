@@ -158,23 +158,35 @@ $("#add-player").on("click", function (event) {
 // ON CLICK EVENT LISTENER FOR PLAYER 1 CHOICE OF RPS
 $("#player1-card").on("click", ".choose", function (event) {
     event.preventDefault();
-    player1Choice = $(this).val().trim();
 
-    console.log(player1Choice);
-    database.ref().child("/playerData/player1/choice").set(player1Choice);
-    p1Card.hide();
+    var player1Check = localStorage.getItem("username");
 
+    if ((player1 && player2) && player1Check === player1.name) {
+        player1Choice = $(this).val().trim();
+
+        console.log(player1Choice);
+        database.ref().child("/playerData/player1/choice").set(player1Choice);
+
+    } else {
+        console.log("Nice try cheater...");
+    }
 });
 
 // ON CLICK EVENT LISTENER FOR PLAYER 2 CHOICE OF RPS
 $("#player2-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
-    player2Choice = $(this).val().trim();
+    var player2Check = localStorage.getItem("usernamd");
 
-    console.log(player2Choice);
-    database.ref().child("/playerData/player2/choice").set(player2Choice);
-    p2Card.hide();
+    if ((player1 && player2) && player2Check === player2.name) {
+
+        player2Choice = $(this).val().trim();
+
+        console.log(player2Choice);
+        database.ref().child("/playerData/player2/choice").set(player2Choice);
+    } else {
+        console.log("Nice try cheater...")
+    }
 
 });
 
