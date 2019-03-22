@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>rock paper scissor</title>
+    <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase.js"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+    <navbar>
+
+    </navbar>
+
+    <div class="container">
+
+        <div class="row player-input-row">
+
+            <form class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="tag-input" class="sr-only">Gamer Tag</label>
+                    <input type="text" class="form-control" id="tag-input">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2" id="add-player">Add Player</button>
+            </form>
+
+        </div>
+
+        <div class="row choice-row">
+
+            <div class="card-deck">
+                <div class="card text-left" style="width: 18rem;" id="player1-card">
+                    <img src="" class="card-img-top" alt="" id="player1-gif">
+                    <div class="card-body">
+                        <h5 class="card-title" id="player1-name"></h5>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="r">rock</button>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="p">paper</button>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="s">scissors</button>
+                        <p class="card-text" id="player1-results"></p>
+                    </div>
+                </div>
+
+                <div class="card text-center" style="width: 18rem;" id="graphics-card">
+                    <img src="" class="card-img-top" alt="" id="">
+                    <div class="card-body">
+                        <h5 class="card-title" id="winner-announce"></h5>
+                    </div>
+                </div>
+
+                <div class="card text-right" style="width: 18rem;" id="player2-card">
+                    <img src="" class="card-img-top" alt="" id="player2-gif">
+                    <div class="card-body">
+                        <h5 class="card-title" id="player2-name"></h5>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="r">rock</button>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="p">paper</button>
+                        <button class="btn btn-primary btn-lg btn-block choose" value="s">scissors</button>
+                        <p class="card-text" id="player2-results"></p>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="assets/javascript/game.js"></script>
+</body>
+
+</html>
