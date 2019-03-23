@@ -3,13 +3,21 @@ var player1 = null;
 var player2 = null;
 var player1Name = "";
 var player2Name = "";
-var userName = "";
+var username = "";
 var player1Choice = "";
 var player2Choice = "";
 
 // DYNAMICALLY SHOWING/HIDING CONTENT
 var p1Card = $("#player1-card");
 var p2Card = $("#player2-card");
+var lobbyScreen = $("#screen-lobby");
+var gameScreen = $("#screen-game");
+var messageScreen = $("#screen-message");
+
+// LOADS PAGE WITH JUST THE LOBBY CARD SHOWING
+lobbyScreen.show();
+gameScreen.hide();
+messageScreen.hide();
 
 // FIREBASE CONFIG AND INITIALIZATION
 var config = {
@@ -52,7 +60,7 @@ database.ref("/chat/").on("child_added", function (snapshot) {
     var msg = snapshot.val();
     var msgEntry = $("<div>").html(msg);
 
-    if (msg.startsWith(userName)) {
+    if (msg.startsWith(username)) {
         msgEntry.addClass("msgBlue");
     } else {
         msgEntry.addClass("msgGreen");
@@ -140,12 +148,16 @@ $("#add-player").on("click", function (event) {
                 choice: ""
             };
 
-            // SAVES THE USERNAME TO THE LOCALSTORAGE IN ORDER TO COMPARE LATER
+            // SAVES THE username TO THE LOCALSTORAGE IN ORDER TO COMPARE LATER
             localStorage.clear();
             localStorage.setItem("username", username)
             database.ref().child("/playerData/player1").set(player1);
             database.ref("/playerData/player1").onDisconnect().remove();
 
+            // HUGE!!!! THIS WILL ONLY CHANGE THE DOM ON PLAYER1'S SCREEN HAHA
+            lobbyScreen.hide();
+            gameScreen.show();
+            messageScreen.show();
         } else if (player1 !== null && player2 === null) {
 
             console.log("Initializing player 2");
@@ -164,9 +176,14 @@ $("#add-player").on("click", function (event) {
             localStorage.setItem("username", username)
             database.ref().child("/playerData/player2").set(player2);
             database.ref("/playerData/player2").onDisconnect().remove();
+
+            // HUGE!!!! THIS WILL ONLY CHANGE THE DOM ON PLAYER1'S SCREEN HAHA
+            lobbyScreen.hide();
+            gameScreen.show();
+            messageScreen.show();
         }
 
-        var msg = (userName + " has arrived.");
+        var msg = (username + " has arrived.");
         var msgKey = database.ref().child("/chat/").push().key;
         database.ref("/chat/" + msgKey).set(msg);
 
@@ -179,7 +196,7 @@ $("#add-player").on("click", function (event) {
 $("#player1-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
-    // GRAB THE LOCALSTORAGE USERNAME
+    // GRAB THE LOCALSTORAGE username
     var player1Check = localStorage.getItem("username");
 
     // COMPARE IT TO PLAYER1.NAME
@@ -203,7 +220,7 @@ $("#player1-card").on("click", ".choose", function (event) {
 $("#player2-card").on("click", ".choose", function (event) {
     event.preventDefault();
 
-    // GRAB THE LOCALSTORAGE USERNAME
+    // GRAB THE LOCALSTORAGE username
     var player2Check = localStorage.getItem("username");
 
     // COMPARE IT TO PLAYER2.NAME
@@ -227,7 +244,7 @@ $("#send-msg").on("click", function (event) {
     event.preventDefault();
 
     // This checks to see if the person submitting a message has a username or not
-    if (userName !== "") {
+    if (username !== "") {
         var msg = username + ": " + $("#msg-input").val().trim();
         $("#msg-input").val("");
         var msgKey = database.ref().child("/chat/").push().key;
@@ -257,7 +274,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
-            $("#gif-image").attr("src", "https://gph.is/2oXFLaF");
+            $("#gif-image").attr("src", "assets/images/paper.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -279,7 +296,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
-            $("#gif-image").attr("src", "https://gph.is/2aA3FDB");
+            $("#gif-image").attr("src", "assets/images/rock.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -290,7 +307,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
-            $("#gif-image").attr("src", "https://gph.is/2aA3FDB");
+            $("#gif-image").attr("src", "assets/images/rock.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
@@ -301,7 +318,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
-            $("#gif-image").attr("src", "https://gph.is/2oXFLaF");
+            $("#gif-image").attr("src", "assets/images/paper.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);

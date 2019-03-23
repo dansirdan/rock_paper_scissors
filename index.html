@@ -15,21 +15,24 @@
 
 <body>
 
-    <navbar>
-
-    </navbar>
-
     <div class="container">
 
-        <form class="form-inline player-input-row">
-            <div class="form-group mx-sm-3 mb-2">
-                <label for="tag-input" class="sr-only">Gamer Tag</label>
-                <input type="text" class="form-control" id="tag-input">
+        <!-- LOBBY SCREEN disappears after you input a username -->
+        <div class="card" id="screen-lobby">
+            <img src="assets/images/loading.gif" class="card-img-top" alt="heavenly RPS fight">
+            <div class="card-body">
+                <form class="form-inline player-input-row">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="tag-input" class="sr-only">Gamer Tag</label>
+                        <input type="text" class="form-control" id="tag-input">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" id="add-player">Add Player</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary mb-2" id="add-player">Add Player</button>
-        </form>
+        </div>
 
-        <div class="card-deck choice-row">
+        <!-- GAME SCREEN appears afer you input a username -->
+        <div class="card-deck choice-row" id="screen-game">
             <div class="card text-left" style="width: 18rem;" id="player1-card">
                 <img src="" class="card-img-top" alt="" id="player1-gif">
                 <div class="card-body">
@@ -61,7 +64,8 @@
             </div>
         </div>
 
-        <div class="card text-center">
+        <!-- MESSAGE SCREEN appears after you input a username -->
+        <div class="card text-center" id="screen-message">
             <div class="card-header">
                 Social Hour
             </div>
