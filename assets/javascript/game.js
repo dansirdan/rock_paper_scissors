@@ -10,6 +10,8 @@ var player2Choice = "";
 // DYNAMICALLY SHOWING/HIDING CONTENT
 var p1Card = $("#player1-card");
 var p2Card = $("#player2-card");
+var player1BTNs = $("#p1BTN");
+var player2BTNs = $("#p2BTN");
 var lobbyScreen = $("#screen-lobby");
 var gameScreen = $("#screen-game");
 var messageScreen = $("#screen-message");
@@ -69,8 +71,16 @@ database.ref("/chat/").on("child_added", function (snapshot) {
     $("#chat-box").append(msgEntry);
     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
 
+});
 
-})
+
+// NEED TO DO THIS
+// if ((snapshot.child("player1").exists()) && (snapshot.child("player2").exists())) {
+//     if (player1.ready && player2.ready) {
+
+//         compare();
+//     };
+// };
 
 // SNAPSHOT OF THE LOCAL DATA AT PAGE LOAD AND OTHER VALUE CHANGES
 database.ref("/playerData/").on("value", function (snapshot) {
@@ -112,18 +122,10 @@ database.ref("/playerData/").on("value", function (snapshot) {
         $("#player2-results").text("Waiting for the Game to Start");
     };
 
-    if (player1 && player2) {
-        $("#lobby").hide();
-        $("#show-game").show();
-        // START 5 SECOND TIMER TO BEGIN GAME
-        // TIMER WILL QUE A COMPARISON FUNCTION TO PLAY THE GAME
-        // Allows for buttons to be dynamically created
-    };
-
     if (!player1 && !player2) {
-        console.log("a player disconnected");
-        database.ref("/")
+        database.ref("/chat/").remove();
     }
+
 }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
 });
@@ -145,7 +147,8 @@ $("#add-player").on("click", function (event) {
                 wins: 0,
                 loss: 0,
                 tie: 0,
-                choice: ""
+                choice: "",
+                ready: false,
             };
 
             // SAVES THE username TO THE LOCALSTORAGE IN ORDER TO COMPARE LATER
@@ -169,7 +172,8 @@ $("#add-player").on("click", function (event) {
                 wins: 0,
                 loss: 0,
                 tie: 0,
-                choice: ""
+                choice: "",
+                ready: false
             };
 
             localStorage.clear();
@@ -205,15 +209,16 @@ $("#player1-card").on("click", ".choose", function (event) {
     if ((player1 && player2) && player1Check === player1.name) {
 
         player1Choice = $(this).val().trim();
+        player1BTNs.hide();
 
-        console.log(player1Choice);
+        player1Ready = true;
+        $("#player1-announce").text("Player 1: Ready");
         database.ref().child("/playerData/player1/choice").set(player1Choice);
+        database.ref().child("/playerData/player1/ready").set(player1Ready);
 
     } else {
         console.log("Nice try cheater...");
-    }
-
-
+    };
 });
 
 // ON CLICK EVENT LISTENER FOR PLAYER 2 CHOICE OF RPS
@@ -229,14 +234,16 @@ $("#player2-card").on("click", ".choose", function (event) {
     if ((player1 && player2) && player2Check === player2.name) {
 
         player2Choice = $(this).val().trim();
+        player2BTNs.hide();
 
-        console.log(player2Choice);
+        player2Ready = true;
+        database.ref().child("/playerData/player2/ready").set(player2Ready);
+        $("#player2-announce").text("Player 2: Ready");
         database.ref().child("/playerData/player2/choice").set(player2Choice);
 
     } else {
         console.log("Nice try cheater...")
-    }
-
+    };
 });
 
 // LISTENER FOR CHAT SUBMIT BUTTON
@@ -257,7 +264,7 @@ $("#send-msg").on("click", function (event) {
 // COMPARE FUNCTION
 function compare() {
 
-    if (player1.choice !== "" || player2.choice !== "") {
+    if (player1.choice !== "" && player2.choice !== "") {
         if (player1.choice === player2.choice) {
 
             console.log("Tie Game!");
@@ -267,6 +274,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/tie").set(player1.tie + 1);
             database.ref().child("/playerData/player2/tie").set(player2.tie + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "r" && player2.choice === "p") {
 
@@ -278,6 +287,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "p" && player2.choice === "s") {
 
@@ -289,6 +300,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "s" && player2.choice === "r") {
 
@@ -300,6 +313,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "r" && player2.choice === "s") {
 
@@ -311,6 +326,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "p" && player2.choice === "r") {
 
@@ -322,6 +339,8 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
+            newChoice();
+            newRound();
 
         } else if (player1.choice === "s" && player2.choice === "p") {
 
@@ -333,7 +352,27 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
+            newChoice();
+            newRound();
 
         };
+    } else {
+        console.log("compare function not ready");
     };
 };
+
+// CHOICE RESET
+function newChoice() {
+    database.ref().child("/playerData/player1/choice").set("");
+    database.ref().child("/playerData/player2/choice").set("");
+}
+
+// GAME RESET BUTTON TO BE ON A TIMER INSIDE OF COMPARE
+function newRound() {
+    player1BTNs.show();
+    player2BTNs.show();
+    player1Ready = false;
+    player2Ready = false;
+    database.ref().child("/playerData/player1/ready").set(player1Ready);
+    database.ref().child("/playerData/player2/ready").set(player2Ready);
+}
