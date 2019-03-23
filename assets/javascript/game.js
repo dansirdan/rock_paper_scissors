@@ -39,11 +39,28 @@ connectedRef.on("value", function (snap) {
 // LISTENER FOR DISCONNECTION EVENTS
 database.ref("/playerData/").on("child_removed", function (snapshot) {
     var notify = snapshot.val().name + " has disconnected.";
-    var msgNotify = $("<div>").text(notify);
+    var msg = $("<div>").text(notify);
 
     var chat = database.ref().child("/chat/").push().key;
     database.ref("/chat/" + chat).set(notify);
-    $("#chat-box").append(msgNotify);
+    $("#chat-box").append(msg);
+
+});
+
+// CHAT LISTENER SNAPSHOT
+database.ref("/chat/").on("child_added", function (snapshot) {
+    var msg = snapshot.val();
+    var msgEntry = $("<div>").html(msg);
+
+    if (msg.startsWith(userName)) {
+        msgEntry.addClass("msgBlue");
+    } else {
+        msgEntry.addClass("msgGreen");
+    }
+
+    $("#chat-box").append(msgEntry);
+    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+
 
 })
 
@@ -57,7 +74,7 @@ database.ref("/playerData/").on("value", function (snapshot) {
         player1Name = player1.name;
 
         $("#player1-name").text(player1Name);
-        $("#player1-results").text("Win: " + player1.wins);
+        $("#player1-results").text("Win: " + player1.wins + " Losses: " + player1.loss + " Ties: " + player1.tie);
     } else {
         console.log("Player 1: null.");
 
@@ -76,7 +93,7 @@ database.ref("/playerData/").on("value", function (snapshot) {
         player2Name = player2.name;
 
         $("#player2-name").text(player2Name);
-        $("#player2-results").text("Win: " + player2.wins);
+        $("#player2-results").text("Win: " + player2.wins + " Losses: " + player2.loss + " Ties: " + player2.tie);
     } else {
         console.log("Player 2: null.");
 
@@ -97,6 +114,7 @@ database.ref("/playerData/").on("value", function (snapshot) {
 
     if (!player1 && !player2) {
         console.log("a player disconnected");
+        database.ref("/")
     }
 }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
@@ -148,6 +166,10 @@ $("#add-player").on("click", function (event) {
             database.ref("/playerData/player2").onDisconnect().remove();
         }
 
+        var msg = (userName + " has arrived.");
+        var msgKey = database.ref().child("/chat/").push().key;
+        database.ref("/chat/" + msgKey).set(msg);
+
         // CLEARS THE INPUT FIELD
         $("#tag-input").val("");
     };
@@ -164,6 +186,7 @@ $("#player1-card").on("click", ".choose", function (event) {
     // ALLOWS ONLY PLAYER1 TO CLICK ON PLAYER1 BUTTONS! CONSOLE.LOG'S "Nice try cheater..." IF THEY TRY TO CLICK THEIR BUTTONS
     // SEMI FLAWED IF THE USER HAS THE SAME USER NAME AS THE OTHER PLAYER
     if ((player1 && player2) && player1Check === player1.name) {
+
         player1Choice = $(this).val().trim();
 
         console.log(player1Choice);
@@ -192,6 +215,7 @@ $("#player2-card").on("click", ".choose", function (event) {
 
         console.log(player2Choice);
         database.ref().child("/playerData/player2/choice").set(player2Choice);
+
     } else {
         console.log("Nice try cheater...")
     }
@@ -199,13 +223,19 @@ $("#player2-card").on("click", ".choose", function (event) {
 });
 
 // LISTENER FOR CHAT SUBMIT BUTTON
-$("#send-msg").on("click", function () {
-    console.log("this is a test");
-    var message = $("#msg-input").val();
-    var msgDiv = $("<p>").text(message);
+$("#send-msg").on("click", function (event) {
+    event.preventDefault();
 
-    $("#chat-box").append(msgDiv);
-})
+    // This checks to see if the person submitting a message has a username or not
+    if (userName !== "") {
+        var msg = username + ": " + $("#msg-input").val().trim();
+        $("#msg-input").val("");
+        var msgKey = database.ref().child("/chat/").push().key;
+
+        database.ref("/chat/" + msgKey).set(msg);
+
+    };
+});
 
 // COMPARE FUNCTION
 function compare() {
@@ -216,7 +246,7 @@ function compare() {
             console.log("Tie Game!");
 
             $("#winner-announce").text("Tie Game: No Winner");
-            $("#gif-image").attr("src", "/assets/images/tiegame.gif");
+            $("#gif-image").attr("src", "assets/images/tiegame.gif");
 
             database.ref().child("/playerData/player1/tie").set(player1.tie + 1);
             database.ref().child("/playerData/player2/tie").set(player2.tie + 1);
@@ -227,7 +257,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
-            $("#gif-image").attr("src", "/assets/images/paper.gif");
+            $("#gif-image").attr("src", "https://gph.is/2oXFLaF");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -238,7 +268,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
-            $("#gif-image").attr("src", "/assets/images/scissor.gif");
+            $("#gif-image").attr("src", "assets/images/scissor.gif");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -249,7 +279,7 @@ function compare() {
             console.log("Player 2 Won!");
 
             $("#winner-announce").text("Player 2 Wins");
-            $("#gif-image").attr("src", "/assets/images/rock.gif");
+            $("#gif-image").attr("src", "https://gph.is/2aA3FDB");
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
@@ -260,7 +290,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
-            $("#gif-image").attr("src", "/assets/images/rock.gif");
+            $("#gif-image").attr("src", "https://gph.is/2aA3FDB");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
@@ -271,7 +301,7 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
-            $("#gif-image").attr("src", "/assets/images/paper.gif");
+            $("#gif-image").attr("src", "https://gph.is/2oXFLaF");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
@@ -282,15 +312,11 @@ function compare() {
             console.log("Player 2 Lost!");
 
             $("#winner-announce").text("Player 1 Wins");
-            $("#gif-image").attr("src", "/assets/images/scissor.gif");
+            $("#gif-image").attr("src", "assets/images/scissor.gif");
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
 
         };
-    } else {
-
-        console.log("Both players need to choose")
-
-    }
+    };
 };
