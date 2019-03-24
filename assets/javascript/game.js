@@ -17,6 +17,7 @@ var player2BTNs = $("#p2BTN");
 var lobbyScreen = $("#screen-lobby");
 var gameScreen = $("#screen-game");
 var messageScreen = $("#screen-message");
+var createPlayer = $("#create-player");
 
 // LOADS PAGE WITH JUST THE LOBBY CARD SHOWING
 lobbyScreen.show();
@@ -90,7 +91,11 @@ database.ref("/endRound/").on("value", function (snapshot) {
     };
 
     if (compare1 === true && compare2 === true) {
-        compare();
+        lobbyScreen.show();
+        createPlayer.hide();
+        gameScreen.hide();
+        messageScreen.hide();
+        setTimeout(compare(), 3000);
     } else {
         console.log("waiting to choose");
     };
@@ -115,7 +120,6 @@ database.ref("/playerData/").on("value", function (snapshot) {
 
         $("#player1-name").text("Waiting for Player 1...");
         $("#player1-results").text("Waiting for the Game to Start");
-
     };
 
     if (snapshot.child("player2").exists()) {
@@ -175,6 +179,7 @@ $("#add-player").on("click", function (event) {
             // HUGE!!!! THIS WILL ONLY CHANGE THE DOM ON PLAYER1'S SCREEN HAHA
             lobbyScreen.hide();
             gameScreen.show();
+            p2Card.hide();
             messageScreen.show();
         } else if (player1 !== null && player2 === null) {
 
@@ -200,6 +205,7 @@ $("#add-player").on("click", function (event) {
             // HUGE!!!! THIS WILL ONLY CHANGE THE DOM ON PLAYER1'S SCREEN HAHA
             lobbyScreen.hide();
             gameScreen.show();
+            p1Card.hide();
             messageScreen.show();
         }
 
@@ -226,9 +232,9 @@ $("#player1-card").on("click", ".choose", function (event) {
 
         player1Choice = $(this).val().trim();
         player1BTNs.hide();
-
         player1Ready = true;
-        $("#player1-announce").text("Player 1: Ready");
+        $("#player1-gif").attr("src", "assets/images/waiting.gif");
+        $("#player-announce").text("...waiting for player 2...");
         database.ref().child("/playerData/player1/choice").set(player1Choice);
         database.ref().child("/playerData/player1/ready").set(player1Ready);
         database.ref().child("/endRound/first").set(true);
@@ -249,10 +255,10 @@ $("#player2-card").on("click", ".choose", function (event) {
 
         player2Choice = $(this).val().trim();
         player2BTNs.hide();
-
         player2Ready = true;
+        $("#player2-gif").attr("src", "assets/images/waiting.gif");
         database.ref().child("/playerData/player2/ready").set(player2Ready);
-        $("#player2-announce").text("Player 2: Ready");
+        $("#player-announce").text("...waiting for player 1...");
         database.ref().child("/playerData/player2/choice").set(player2Choice);
         database.ref().child("/endRound/second").set(true);
     };
@@ -277,6 +283,12 @@ $("#send-msg").on("click", function (event) {
 function compare() {
 
     if (player1.choice !== "" && player2.choice !== "") {
+
+        lobbyScreen.hide();
+        createPlayer.show();
+        gameScreen.show();
+        messageScreen.show();
+
         if (player1.choice === player2.choice) {
 
             console.log("Tie Game!");
@@ -286,7 +298,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/tie").set(player1.tie + 1);
             database.ref().child("/playerData/player2/tie").set(player2.tie + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "r" && player2.choice === "p") {
 
@@ -298,7 +310,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "p" && player2.choice === "s") {
 
@@ -310,7 +322,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "s" && player2.choice === "r") {
 
@@ -322,7 +334,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "r" && player2.choice === "s") {
 
@@ -334,7 +346,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "p" && player2.choice === "r") {
 
@@ -346,7 +358,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         } else if (player1.choice === "s" && player2.choice === "p") {
 
@@ -358,7 +370,7 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newRound();
+            setTimeout(newRound(), 3000);
 
         };
     } else {
@@ -372,6 +384,9 @@ function newRound() {
     database.ref().child("/playerData/player2/choice").set("");
     database.ref().child("/endRound/first").set(false);
     database.ref().child("/endRound/second").set(false);
+    $("#player-announce").empty();
+    $("#player1-gif").attr("src", "");
+    $("#player2-gif").attr("src", "");
     player1BTNs.show();
     player2BTNs.show();
     player1Ready = false;
