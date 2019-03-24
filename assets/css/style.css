@@ -1,8 +1,21 @@
+body {
+    background-color: black;
+}
+
 .container {
-    margin-top: 100px;
+    margin-top: 80px;
+    max-width: 800px;
 }
 
 .btn {
     background-color: black;
+    border: black;
+}
+
+#screen-message {
+    margin-top: 20px;
+}
+
+.card {
     border: black;
 }

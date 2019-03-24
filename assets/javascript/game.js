@@ -110,8 +110,8 @@ database.ref("/playerData/").on("value", function (snapshot) {
         player1 = snapshot.val().player1;
         player1Name = player1.name;
 
-        $("#player1-name").text(player1Name);
-        $("#player1-results").text("Win: " + player1.wins + " Losses: " + player1.loss + " Ties: " + player1.tie);
+        $("#player1-name").text("player_one: " + player1Name);
+        $("#player1-results").text("Wins: " + player1.wins + " Losses: " + player1.loss + " Ties: " + player1.tie);
     } else {
         console.log("Player 1: null.");
 
@@ -128,8 +128,8 @@ database.ref("/playerData/").on("value", function (snapshot) {
         player2 = snapshot.val().player2;
         player2Name = player2.name;
 
-        $("#player2-name").text(player2Name);
-        $("#player2-results").text("Win: " + player2.wins + " Losses: " + player2.loss + " Ties: " + player2.tie);
+        $("#player2-name").text("player_two: " + player2Name);
+        $("#player2-results").text("Wins: " + player2.wins + " Losses: " + player2.loss + " Ties: " + player2.tie);
     } else {
         console.log("Player 2: null.");
 
@@ -393,4 +393,4 @@ function newRound() {
     player2Ready = false;
     database.ref().child("/playerData/player1/ready").set(player1Ready);
     database.ref().child("/playerData/player2/ready").set(player2Ready);
-}
+};
