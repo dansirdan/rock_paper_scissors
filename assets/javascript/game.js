@@ -1,4 +1,4 @@
-// OBJECTS FOR PLAYER DATA
+// GLOBAL VARIABLES
 var player1 = null;
 var player2 = null;
 var player1Name = "";
@@ -6,6 +6,8 @@ var player2Name = "";
 var username = "";
 var player1Choice = "";
 var player2Choice = "";
+var compare1 = false;
+var compare2 = false;
 
 // DYNAMICALLY SHOWING/HIDING CONTENT
 var p1Card = $("#player1-card");
@@ -73,14 +75,26 @@ database.ref("/chat/").on("child_added", function (snapshot) {
 
 });
 
+database.ref("/endRound/").on("value", function (snapshot) {
 
-// NEED TO DO THIS
-// if ((snapshot.child("player1").exists()) && (snapshot.child("player2").exists())) {
-//     if (player1.ready && player2.ready) {
+    if (snapshot.child("first").exists()) {
+        compare1 = snapshot.val().first;
+    } else {
+        console.log("compare1 null")
+    };
 
-//         compare();
-//     };
-// };
+    if (snapshot.child("second").exists()) {
+        compare2 = snapshot.val().second;
+    } else {
+        console.log("compare2 null")
+    };
+
+    if (compare1 === true && compare2 === true) {
+        compare();
+    } else {
+        console.log("waiting to choose");
+    };
+});
 
 // SNAPSHOT OF THE LOCAL DATA AT PAGE LOAD AND OTHER VALUE CHANGES
 database.ref("/playerData/").on("value", function (snapshot) {
@@ -153,7 +167,8 @@ $("#add-player").on("click", function (event) {
 
             // SAVES THE username TO THE LOCALSTORAGE IN ORDER TO COMPARE LATER
             localStorage.clear();
-            localStorage.setItem("username", username)
+            localStorage.setItem("username", username);
+            database.ref().child("/endRound/first").set(false);
             database.ref().child("/playerData/player1").set(player1);
             database.ref("/playerData/player1").onDisconnect().remove();
 
@@ -177,7 +192,8 @@ $("#add-player").on("click", function (event) {
             };
 
             localStorage.clear();
-            localStorage.setItem("username", username)
+            localStorage.setItem("username", username);
+            database.ref().child("/endRound/second").set(false);
             database.ref().child("/playerData/player2").set(player2);
             database.ref("/playerData/player2").onDisconnect().remove();
 
@@ -215,9 +231,7 @@ $("#player1-card").on("click", ".choose", function (event) {
         $("#player1-announce").text("Player 1: Ready");
         database.ref().child("/playerData/player1/choice").set(player1Choice);
         database.ref().child("/playerData/player1/ready").set(player1Ready);
-
-    } else {
-        console.log("Nice try cheater...");
+        database.ref().child("/endRound/first").set(true);
     };
 });
 
@@ -240,9 +254,7 @@ $("#player2-card").on("click", ".choose", function (event) {
         database.ref().child("/playerData/player2/ready").set(player2Ready);
         $("#player2-announce").text("Player 2: Ready");
         database.ref().child("/playerData/player2/choice").set(player2Choice);
-
-    } else {
-        console.log("Nice try cheater...")
+        database.ref().child("/endRound/second").set(true);
     };
 });
 
@@ -274,7 +286,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/tie").set(player1.tie + 1);
             database.ref().child("/playerData/player2/tie").set(player2.tie + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "r" && player2.choice === "p") {
@@ -287,7 +298,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "p" && player2.choice === "s") {
@@ -300,7 +310,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "s" && player2.choice === "r") {
@@ -313,7 +322,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/loss").set(player1.loss + 1);
             database.ref().child("/playerData/player2/wins").set(player2.wins + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "r" && player2.choice === "s") {
@@ -326,7 +334,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "p" && player2.choice === "r") {
@@ -339,7 +346,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newChoice();
             newRound();
 
         } else if (player1.choice === "s" && player2.choice === "p") {
@@ -352,7 +358,6 @@ function compare() {
 
             database.ref().child("/playerData/player1/wins").set(player1.wins + 1);
             database.ref().child("/playerData/player2/loss").set(player2.loss + 1);
-            newChoice();
             newRound();
 
         };
@@ -361,14 +366,12 @@ function compare() {
     };
 };
 
-// CHOICE RESET
-function newChoice() {
-    database.ref().child("/playerData/player1/choice").set("");
-    database.ref().child("/playerData/player2/choice").set("");
-}
-
 // GAME RESET BUTTON TO BE ON A TIMER INSIDE OF COMPARE
 function newRound() {
+    database.ref().child("/playerData/player1/choice").set("");
+    database.ref().child("/playerData/player2/choice").set("");
+    database.ref().child("/endRound/first").set(false);
+    database.ref().child("/endRound/second").set(false);
     player1BTNs.show();
     player2BTNs.show();
     player1Ready = false;
