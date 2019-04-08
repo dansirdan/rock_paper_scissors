@@ -1,4 +1,5 @@
-# RPS-multiplayer
+# rock paper scissors
+- 2 player edition
 
 deployed at:
 https://dansirdan.github.io/RPS-multiplayer/
