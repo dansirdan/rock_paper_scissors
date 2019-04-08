@@ -2,7 +2,7 @@
 - 2 player edition
 
 deployed at:
-https://dansirdan.github.io/RPS-multiplayer/
+https://dansirdan.github.io/rock_paper_scissors/
 
 Hard Homework option:
 
